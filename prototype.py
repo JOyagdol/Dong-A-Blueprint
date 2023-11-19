@@ -1,7 +1,7 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QGraphicsView, QGraphicsScene, QGraphicsRectItem, QGraphicsTextItem, QLineEdit, QPushButton
 from PyQt5.QtGui import QPen, QBrush
-from PyQt5.QtCore import Qt, QLineF, QPointF
+from PyQt5.QtCore import Qt, QLineF
 
 
 class DraggableBlock(QGraphicsRectItem):
@@ -34,13 +34,18 @@ class DesignDiagram(QMainWindow):
 
         # Add user input for object name
         self.object_name_input = QLineEdit(self)
-        self.object_name_input.setGeometry(350, 50, 150, 30)
+        self.object_name_input.setGeometry(85, 50, 150, 30)
         self.object_name_input.setPlaceholderText("Enter object name")
 
         # Add button to create object
         create_object_button = QPushButton("Create Object", self)
-        create_object_button.setGeometry(350, 90, 150, 30)
+        create_object_button.setGeometry(85, 90, 150, 30)
         create_object_button.clicked.connect(self.create_object)
+
+        # Add button to delete object(마지막으로 생성된 순으로 제거)
+        delete_object_button = QPushButton("Delete Object", self)
+        delete_object_button.setGeometry(85, 130, 150, 30)
+        delete_object_button.clicked.connect(self.delete_object)
 
     def create_block(self, x, y, label):
         block = DraggableBlock(x, y, 100, 50, label)
@@ -53,6 +58,13 @@ class DesignDiagram(QMainWindow):
         # Create a block with the entered object name
         new_block = self.create_block(x=500, y=50, label=object_name)
         self.scene.addItem(new_block)
+
+    def delete_object(self):
+        # Remove the last item added to the scene
+        items = self.scene.items()
+        if items:
+            last_item = items[-1]
+            self.scene.removeItem(last_item)
 
 
 def main():

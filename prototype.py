@@ -1,9 +1,11 @@
 import sys
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
-from PyQt5.QtCore import *
+from PyQt5.QtWidgets import QApplication, QMainWindow, QGraphicsView, QGraphicsScene, QGraphicsRectItem, \
+    QGraphicsTextItem, QGraphicsLineItem, QPushButton, QLineEdit
+from PyQt5.QtGui import QPen, QBrush
+from PyQt5.QtCore import Qt
 
 class DraggableBlock(QGraphicsRectItem):
+
     def __init__(self, x, y, width, height, label):
         super().__init__(x, y, width, height)
         self.setFlag(QGraphicsRectItem.ItemIsMovable)

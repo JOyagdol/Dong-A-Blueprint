@@ -1,18 +1,16 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QGraphicsView, QGraphicsScene, QGraphicsRectItem, \
-    QGraphicsEllipseItem, \
     QGraphicsTextItem, QGraphicsLineItem, QPushButton, QLineEdit
-from PyQt5.QtGui import QPen, QBrush, QPainter
+from PyQt5.QtGui import QPen, QBrush
 from PyQt5.QtCore import Qt
-
 
 class DraggableBlock(QGraphicsRectItem):
 
-    def __init__(self, x, y, width, height, label, line_style=Qt.SolidLine):
+    def __init__(self, x, y, width, height, label):
         super().__init__(x, y, width, height)
         self.setFlag(QGraphicsRectItem.ItemIsMovable)
         self.setFlag(QGraphicsRectItem.ItemIsSelectable)
-        self.setPen(QPen(Qt.black, 4, line_style))
+        self.setPen(QPen(Qt.black))
         self.setBrush(QBrush(Qt.lightGray))
 
         # Create a text item and set its parent to the block
@@ -20,7 +18,6 @@ class DraggableBlock(QGraphicsRectItem):
         text.setParentItem(self)
         text.setDefaultTextColor(Qt.black)  # Set text color
         text.setPos(x + 10, y + 10)  # Adjust text position inside the block
-
 
 class DraggableLine(QGraphicsLineItem):
     def __init__(self, x1, y1, x2, y2, line_style=Qt.SolidLine):
@@ -31,34 +28,13 @@ class DraggableLine(QGraphicsLineItem):
     def update_line(self, pos):
         self.setLine(self.line().x1(), self.line().y1(), pos.x(), pos.y())
 
-
-class DraggableGod(QGraphicsEllipseItem):
-    def __init__(self, x, y, width, height):
-        super().__init__(x, y, width, height)
-        self.setFlag(QGraphicsEllipseItem.ItemIsMovable)
-        self.setFlag(QGraphicsEllipseItem.ItemIsSelectable)
-        self.setPen(QPen(Qt.black, 3))
-
-        text = QGraphicsTextItem("God")
-        text.setParentItem(self)
-        text.setDefaultTextColor(Qt.black)
-        text.setPos(x, y + 5)
-
-
-def create_block(x, y, label, line_style=Qt.SolidLine):
-    block = DraggableBlock(x, y, 100, 50, label, line_style)
+def create_block(x, y, label):
+    block = DraggableBlock(x, y, 100, 50, label)
     return block
-
 
 def create_line(x1, y1, x2, y2, line_style=Qt.SolidLine):
     line = DraggableLine(x1, y1, x2, y2, line_style)
     return line
-
-
-def create_god_block(x, y):
-    block = DraggableGod(x, y, 30, 30)
-    return block
-
 
 class DesignDiagram(QMainWindow):
     def __init__(self):
@@ -81,7 +57,7 @@ class DesignDiagram(QMainWindow):
         # Add button to create object
         create_object_button = QPushButton("Create Object", self)
         create_object_button.setGeometry(85, 90, 150, 30)
-        create_object_button.clicked.connect(lambda: self.create_object(Qt.SolidLine))
+        create_object_button.clicked.connect(self.create_object)
 
         # Add button to delete object(마지막으로 생성된 순으로 제거)
         delete_object_button = QPushButton("Delete Object", self)
@@ -102,33 +78,22 @@ class DesignDiagram(QMainWindow):
         delete_line_button.setGeometry(85, 250, 150, 30)
         delete_line_button.clicked.connect(self.delete_line)
 
-        create_start_object_button = QPushButton("Create Start Object", self)
-        create_start_object_button.setGeometry(85, 290, 150, 30)
-        create_start_object_button.clicked.connect(lambda: self.create_object(Qt.DashLine))
-
-        create_god_button = QPushButton("God", self)
-        create_god_button.setGeometry(85, 330, 150, 30)
-        create_god_button.clicked.connect(self.create_god)
-
         self.current_line = None
 
-    def create_god(self):
-        god = create_god_block(x=100, y=50)
-        self.scene.addItem(god)
-
-    def create_object(self, line_style):
+    def create_object(self):
         # Get object name from user input
         object_name = self.object_name_input.text()
 
         # Create a block with the entered object name
-        new_block = create_block(x=500, y=50, label=object_name, line_style=line_style)
+        new_block = create_block(x=500, y=50, label=object_name)
         self.scene.addItem(new_block)
 
     def delete_object(self):
-        blocks = [item for item in self.scene.items() if isinstance(item, DraggableBlock)]
-        if blocks:
-            last_block = blocks[-1]
-            self.scene.removeItem(last_block)
+        # Remove the last item added to the scene
+        items = self.scene.items()
+        if items:
+            last_item = items[-1]
+            self.scene.removeItem(last_item)
 
     def create_line(self, line_style):
         # Set up the current line
@@ -137,7 +102,7 @@ class DesignDiagram(QMainWindow):
         self.scene.addItem(self.current_line)
 
     def delete_line(self):
-        lines = [item for item in self.scene.items() if isinstance(item, DraggableLine)]
+        lines = self.scene.items()
         if lines:
             last_line = lines[-1]
             self.scene.removeItem(last_line)
@@ -153,14 +118,12 @@ class DesignDiagram(QMainWindow):
         if self.current_line:
             self.current_line = None
 
-
 def main():
     app = QApplication(sys.argv)
     window = DesignDiagram()
     window.setGeometry(500, 500, 1000, 600)
     window.show()
     sys.exit(app.exec_())
-
 
 if __name__ == '__main__':
     main()

@@ -3,7 +3,7 @@ import random
 from PyQt5.QtWidgets import QApplication, QMainWindow, QGraphicsView, QGraphicsScene, QGraphicsRectItem, \
     QGraphicsEllipseItem, \
     QGraphicsTextItem, QGraphicsLineItem, QPushButton, QLineEdit
-from PyQt5.QtGui import QPen, QBrush, QPainter
+from PyQt5.QtGui import QPen, QBrush
 from PyQt5.QtCore import Qt, QRectF
 
 
@@ -21,6 +21,8 @@ class DraggableBlock(QGraphicsRectItem):
         text.setParentItem(self)
         text.setDefaultTextColor(Qt.black)  # Set text color
         text.setPos(x + 10, y + 10)  # Adjust text position inside the block
+    
+ 
 
 
 class DraggableLine(QGraphicsLineItem):
@@ -104,12 +106,12 @@ class DesignDiagram(QMainWindow):
         delete_object_button.clicked.connect(self.delete_object)
 
         # Add button to create solid line
-        create_solid_line_button = QPushButton("Solid Line", self)
+        create_solid_line_button = QPushButton("Choice", self)
         create_solid_line_button.setGeometry(55, 250, 150, 30)
         create_solid_line_button.clicked.connect(lambda: self.create_line(Qt.SolidLine))
 
         # Add button to create dashed line
-        create_dashed_line_button = QPushButton("Dot Line", self)
+        create_dashed_line_button = QPushButton("Sequence Choice", self)
         create_dashed_line_button.setGeometry(55, 290, 150, 30)
         create_dashed_line_button.clicked.connect(lambda: self.create_line(Qt.DashLine))
 
@@ -124,9 +126,17 @@ class DesignDiagram(QMainWindow):
         create_god_button = QPushButton("God", self)
         create_god_button.setGeometry(55, 130, 150, 30)
         create_god_button.clicked.connect(self.create_god)
+        
+        create_left_button = QPushButton("Left", self)
+        create_left_button.setGeometry(55, 370, 70, 30)
+        create_left_button.clicked.connect(lambda: self.direction_text_box('left'))
+
+        create_right_button = QPushButton("Right", self)
+        create_right_button.setGeometry(135, 370, 70, 30)
+        create_right_button.clicked.connect(lambda: self.direction_text_box('right'))
 
         create_text_button = QPushButton("Text", self)
-        create_text_button.setGeometry(55, 370, 150, 30)
+        create_text_button.setGeometry(55, 410, 150, 30)
         create_text_button.clicked.connect(self.create_text_box)
 
         self.current_line = None
@@ -136,6 +146,17 @@ class DesignDiagram(QMainWindow):
 
         new_block = text_block(text=text)
         self.scene.addItem(new_block)
+        
+    def direction_text_box(self, direction):
+        text = self.object_name_input.text()
+        if(direction=='right'):
+            text = "--> " + text + " -->"
+        else:
+            text = "<-- " + text + " <--"
+        
+        new_block = text_block(text=text)
+        self.scene.addItem(new_block)
+        
 
     def create_god(self):
         god = create_god_block(x=100, y=50)

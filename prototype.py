@@ -40,6 +40,14 @@ class DraggableGod(QGraphicsEllipseItem):
         text.setParentItem(self)
         text.setDefaultTextColor(Qt.black)
         text.setPos(x,y+5)
+
+class DraggableText(QGraphicsTextItem):
+    def __init__(self,text):
+        super().__init__(text)
+        self.setFlag(QGraphicsTextItem.ItemIsMovable)
+        self.setFlag(QGraphicsTextItem.ItemIsSelectable)
+        
+        self.setDefaultTextColor(Qt.black)
     
 
 def create_block(x, y, label, line_style=Qt.SolidLine):
@@ -53,6 +61,11 @@ def create_line(x1, y1, x2, y2, line_style=Qt.SolidLine):
 def create_god_block(x,y):
     block = DraggableGod(x,y,30,30)
     return block
+
+def text_block(text):
+    block = DraggableText(text)
+    return block
+
 
 class DesignDiagram(QMainWindow):
     def __init__(self):
@@ -74,33 +87,45 @@ class DesignDiagram(QMainWindow):
 
         # Add button to create object
         create_object_button = QPushButton("Create Object", self)
-        create_object_button.setGeometry(55, 90, 150, 30)
+        create_object_button.setGeometry(55, 170, 150, 30)
         create_object_button.clicked.connect(lambda: self.create_object(Qt.SolidLine))
 
         # Add button to delete object(마지막으로 생성된 순으로 제거)
         delete_object_button = QPushButton("Delete Object", self)
-        delete_object_button.setGeometry(55, 130, 150, 30)
+        delete_object_button.setGeometry(55, 210, 150, 30)
         delete_object_button.clicked.connect(self.delete_object)
 
         # Add button to create solid line
         create_solid_line_button = QPushButton("Solid Line", self)
-        create_solid_line_button.setGeometry(55, 170, 150, 30)
+        create_solid_line_button.setGeometry(55, 250, 150, 30)
         create_solid_line_button.clicked.connect(lambda: self.create_line(Qt.SolidLine))
 
         # Add button to create dashed line
         create_dashed_line_button = QPushButton("Dot Line", self)
-        create_dashed_line_button.setGeometry(55, 210, 150, 30)
+        create_dashed_line_button.setGeometry(55, 290, 150, 30)
         create_dashed_line_button.clicked.connect(lambda: self.create_line(Qt.DashLine))
         
         create_start_object_button = QPushButton("Create Start Object", self)
-        create_start_object_button.setGeometry(55, 250, 150, 30)
+        create_start_object_button.setGeometry(55, 90, 150, 30)
         create_start_object_button.clicked.connect(lambda: self.create_object(Qt.DashLine))
         
         create_god_button = QPushButton("God", self)
-        create_god_button.setGeometry(55, 290, 150, 30)
+        create_god_button.setGeometry(55, 130, 150, 30)
         create_god_button.clicked.connect(self.create_god)
 
+        create_text_button = QPushButton("Text", self)
+        create_text_button.setGeometry(55, 330, 150, 30)
+        create_text_button.clicked.connect(self.create_text_box)
+
+
         self.current_line = None
+    def create_text_box(self):
+        text = self.object_name_input.text()
+        
+        new_block = text_block(text=text)
+        self.scene.addItem(new_block)
+        
+
         
     def create_god(self):
         god = create_god_block(x=100,y=50)

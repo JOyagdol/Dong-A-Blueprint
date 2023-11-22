@@ -1,8 +1,9 @@
 import sys
+import random
 from PyQt5.QtWidgets import QApplication, QMainWindow, QGraphicsView, QGraphicsScene, QGraphicsRectItem, QGraphicsEllipseItem, \
     QGraphicsTextItem, QGraphicsLineItem, QPushButton, QLineEdit
 from PyQt5.QtGui import QPen, QBrush, QPainter
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QRectF
 
 class DraggableBlock(QGraphicsRectItem):
 
@@ -68,39 +69,35 @@ class DesignDiagram(QMainWindow):
 
         # Add user input for object name
         self.object_name_input = QLineEdit(self)
-        self.object_name_input.setGeometry(85, 50, 150, 30)
+        self.object_name_input.setGeometry(55, 50, 150, 30)
         self.object_name_input.setPlaceholderText("Enter object name")
 
         # Add button to create object
         create_object_button = QPushButton("Create Object", self)
-        create_object_button.setGeometry(85, 90, 150, 30)
+        create_object_button.setGeometry(55, 90, 150, 30)
         create_object_button.clicked.connect(lambda: self.create_object(Qt.SolidLine))
 
         # Add button to delete object(마지막으로 생성된 순으로 제거)
         delete_object_button = QPushButton("Delete Object", self)
-        delete_object_button.setGeometry(85, 130, 150, 30)
+        delete_object_button.setGeometry(55, 130, 150, 30)
         delete_object_button.clicked.connect(self.delete_object)
 
         # Add button to create solid line
         create_solid_line_button = QPushButton("Solid Line", self)
-        create_solid_line_button.setGeometry(85, 170, 150, 30)
+        create_solid_line_button.setGeometry(55, 170, 150, 30)
         create_solid_line_button.clicked.connect(lambda: self.create_line(Qt.SolidLine))
 
         # Add button to create dashed line
         create_dashed_line_button = QPushButton("Dot Line", self)
-        create_dashed_line_button.setGeometry(85, 210, 150, 30)
+        create_dashed_line_button.setGeometry(55, 210, 150, 30)
         create_dashed_line_button.clicked.connect(lambda: self.create_line(Qt.DashLine))
-
-        delete_line_button = QPushButton("Delete Line", self)
-        delete_line_button.setGeometry(85, 250, 150, 30)
-        delete_line_button.clicked.connect(self.delete_line)
         
         create_start_object_button = QPushButton("Create Start Object", self)
-        create_start_object_button.setGeometry(85, 290, 150, 30)
+        create_start_object_button.setGeometry(55, 250, 150, 30)
         create_start_object_button.clicked.connect(lambda: self.create_object(Qt.DashLine))
         
         create_god_button = QPushButton("God", self)
-        create_god_button.setGeometry(85, 330, 150, 30)
+        create_god_button.setGeometry(55, 290, 150, 30)
         create_god_button.clicked.connect(self.create_god)
 
         self.current_line = None
@@ -113,8 +110,20 @@ class DesignDiagram(QMainWindow):
         # Get object name from user input
         object_name = self.object_name_input.text()
 
+        # Define UI area
+        ui_area = QRectF(0, 0, 300, 250)  # Adjust the dimensions as needed
+
+        # Generate random positions for x and y, avoiding UI area
+        random_x = random.uniform(0, self.scene.width() - 100)  # Adjust the range according to the object size
+        random_y = random.uniform(0, self.scene.height() - 50)
+
+        # Check if the random position overlaps with the UI area and adjust if needed
+        if ui_area.contains(random_x, random_y):
+            random_x += 200  # Adjust the offset as needed
+            random_y += 100
+
         # Create a block with the entered object name
-        new_block = create_block(x=500, y=50, label=object_name, line_style=line_style)
+        new_block = create_block(x=random_x, y=random_y, label=object_name, line_style=line_style)
         self.scene.addItem(new_block)
 
     def delete_object(self):
@@ -129,12 +138,6 @@ class DesignDiagram(QMainWindow):
         pos = self.view.mapFromGlobal(self.view.cursor().pos())
         self.current_line = create_line(pos.x(), pos.y(), pos.x(), pos.y(), line_style)
         self.scene.addItem(self.current_line)
-
-    def delete_line(self):
-        lines = self.scene.items()
-        if lines:
-            last_line = lines[-1]
-            self.scene.removeItem(last_line)
 
     def mouseMoveEvent(self, event):
         # Update the current line's end point while dragging

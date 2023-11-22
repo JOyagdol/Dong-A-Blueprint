@@ -138,8 +138,19 @@ class DesignDiagram(QMainWindow):
         create_text_button = QPushButton("Text", self)
         create_text_button.setGeometry(55, 410, 150, 30)
         create_text_button.clicked.connect(self.create_text_box)
+        
+        delete_text_button = QPushButton("Delete Text", self)
+        delete_text_button.setGeometry(55, 450, 150, 30)
+        delete_text_button.clicked.connect(self.delete_text)
 
         self.current_line = None
+
+    def delete_text(self):
+        blocks = [item for item in self.scene.items() if isinstance(item, DraggableText)]
+        blocks.reverse()
+        if blocks:
+            last_block = blocks[-1]
+            self.scene.removeItem(last_block)
 
     def create_text_box(self):
         text = self.object_name_input.text()
@@ -184,6 +195,7 @@ class DesignDiagram(QMainWindow):
 
     def delete_object(self):
         blocks = [item for item in self.scene.items() if isinstance(item, DraggableBlock)]
+        blocks.reverse()
         if blocks:
             last_block = blocks[-1]
             self.scene.removeItem(last_block)
@@ -196,6 +208,7 @@ class DesignDiagram(QMainWindow):
 
     def delete_line(self):
         lines = [item for item in self.scene.items() if isinstance(item, DraggableLine)]
+        lines.reverse()
         if lines:
             last_line = lines[-1]
             self.scene.removeItem(last_line)

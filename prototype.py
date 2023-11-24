@@ -77,6 +77,58 @@ def text_block(text):
     return block
 
 
+class DraggableLine(QGraphicsLineItem):
+    def __init__(self, x1, y1, x2, y2, line_style=Qt.SolidLine):
+        super().__init__(x1, y1, x2, y2)
+        self.setFlag(QGraphicsLineItem.ItemIsMovable)
+        self.setPen(QPen(Qt.black, 4, line_style))
+
+    def update_line(self, pos):
+        self.setLine(self.line().x1(), self.line().y1(), pos.x(), pos.y())
+
+
+class DraggableGod(QGraphicsEllipseItem):
+    def __init__(self, x, y, width, height):
+        super().__init__(x, y, width, height)
+        self.setFlag(QGraphicsEllipseItem.ItemIsMovable)
+        self.setFlag(QGraphicsEllipseItem.ItemIsSelectable)
+        self.setPen(QPen(Qt.black, 3))
+
+        text = QGraphicsTextItem("God")
+        text.setParentItem(self)
+        text.setDefaultTextColor(Qt.black)
+        text.setPos(x+7, y + 12)
+
+
+class DraggableText(QGraphicsTextItem):
+    def __init__(self, text):
+        super().__init__(text)
+        self.setFlag(QGraphicsTextItem.ItemIsMovable)
+        self.setFlag(QGraphicsTextItem.ItemIsSelectable)
+
+        self.setDefaultTextColor(Qt.black)
+
+
+def create_block(x, y, label, line_style=Qt.SolidLine):
+    block = DraggableBlock(x, y, 100, 50, label, line_style)
+    return block
+
+
+def create_line(x1, y1, x2, y2, line_style=Qt.SolidLine):
+    line = DraggableLine(x1, y1, x2, y2, line_style)
+    return line
+
+
+def create_god_block(x, y):
+    block = DraggableGod(x, y, 50, 50)
+    return block
+
+
+def text_block(text):
+    block = DraggableText(text)
+    return block
+
+
 class DesignDiagram(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -126,7 +178,7 @@ class DesignDiagram(QMainWindow):
         create_god_button = QPushButton("God", self)
         create_god_button.setGeometry(55, 130, 150, 30)
         create_god_button.clicked.connect(self.create_god)
-        
+
         create_left_button = QPushButton("Left", self)
         create_left_button.setGeometry(55, 370, 70, 30)
         create_left_button.clicked.connect(lambda: self.direction_text_box('left'))
@@ -138,7 +190,7 @@ class DesignDiagram(QMainWindow):
         create_text_button = QPushButton("Text", self)
         create_text_button.setGeometry(55, 410, 150, 30)
         create_text_button.clicked.connect(self.create_text_box)
-        
+
         delete_text_button = QPushButton("Delete Text", self)
         delete_text_button.setGeometry(55, 450, 150, 30)
         delete_text_button.clicked.connect(self.delete_text)
@@ -154,20 +206,20 @@ class DesignDiagram(QMainWindow):
 
     def create_text_box(self):
         text = self.object_name_input.text()
+        text = text.replace(' ', '\n')
 
         new_block = text_block(text=text)
         self.scene.addItem(new_block)
-        
+
     def direction_text_box(self, direction):
         text = self.object_name_input.text()
-        if(direction=='right'):
+        if (direction == 'right'):
             text = "--> " + text + " -->"
         else:
             text = "<-- " + text + " <--"
-        
+
         new_block = text_block(text=text)
         self.scene.addItem(new_block)
-        
 
     def create_god(self):
         god = create_god_block(x=100, y=50)
@@ -194,7 +246,8 @@ class DesignDiagram(QMainWindow):
         self.scene.addItem(new_block)
 
     def delete_object(self):
-        blocks = [item for item in self.scene.items() if isinstance(item, DraggableBlock)]
+        blocks = [item for item in self.scene.items() if isinstance(item, DraggableBlock) or isinstance(item, DraggableGod)]
+
         blocks.reverse()
         if blocks:
             last_block = blocks[-1]
